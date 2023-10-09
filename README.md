@@ -1,57 +1,258 @@
-# week2codechallenge
+# Flask Code Challenge - Superheroes
 
-## SuperHeroes API
-## Description
-This project is a Flask-based API for tracking heroes and their superpowers. It provides endpoints to manage heroes, powers, and their relationships. Additionally, there is a fully built React frontend application for testing the API's functionality.
+For this assessment, you'll be working on an API for tracking heroes and their
+superpowers.
 
-## Project Setup
-To set up the project, follow these steps:
+In this repo, there is a Flask application with some features built out. There
+is also a fully built React frontend application, so you can test if your API is
+working.
 
-Install dependencies for the Flask backend:
+Your job is to build out the Flask API to add the functionality described in the
+deliverables below.
 
- pipenv install 
- flask pipenv install
-  sqlalchemy pipenv install 
-  flask-sqlalchemy 
-  pipenv install flask-migrate 
-   Install dependencies for the React frontend:
+## Setup
 
+To download the dependencies for the frontend and backend, run:
+
+```sh
+pipenv install
 npm install --prefix client
+```
 
-## Usage
-You can run the Flask API on localhost:5555 by running:
+There is some starter code in the `app/seed.py` file so that once you've
+generated the models, you'll be able to create data to test your application.
 
- python app.py You can run the React app on localhost:4000 by running:
+You can run your Flask API on [`localhost:5555`](http://localhost:5555) by running:
 
- npm start --prefix client
+```sh
+python app.py
+```
 
-## Database Setup
-This project uses a database to store heroes, powers, and their relationships. You need to set up the database by creating the necessary tables and seed data:
+You can run your React app on [`localhost:4000`](http://localhost:4000) by running:
 
-Create the database tables and seed data by running:
-flask db upgrade python app/seed.py If you encounter issues with the provided seed file, you can generate your own seed data to test the application.
+```sh
+npm start --prefix client
+```
+
+You are not being assessed on React, and you don't have to update any of the React
+code; the frontend code is available just so that you can test out the behavior
+of your API in a realistic setting.
+
+There are also tests included which you can run using `pytest -x` to check your work.
+
+Depending on your preference, you can either check your progress by:
+
+- Running `pytest -x` and seeing if your code passes the tests
+- Running the React application in the browser and interacting with the API via
+  the frontend
+- Running the Flask server and using Postman to make requests
 
 ## Models
-The project includes the following models:
 
-Hero: Represents a hero with a name and super name. Power: Represents a superpower with a name and description. HeroPower: Represents the relationship between heroes and powers, including the strength of the power. The models have relationships set up to connect heroes and powers through the HeroPower model.
+You need to create the following relationships:
+
+- A `Hero` has many `Power`s through `HeroPower`
+- A `Power` has many `Hero`s through `HeroPower`
+- A `HeroPower` belongs to a `Hero` and belongs to a `Power`
+
+Start by creating the models and migrations for the following database tables:
+
+![domain diagram](domain.png)
+
+Add any code needed in the model files to establish the relationships.
+
+Then, run the migrations and seed file:
+
+```sh
+flask db upgrade
+python app/seed.py
+```
+
+> If you aren't able to get the provided seed file working, you are welcome to
+> generate your own seed data to test the application.
 
 ## Validations
-The project includes validations for the HeroPower and Power models:
 
-HeroPower:
-strength must be one of the following values: 'Strong', 'Weak', 'Average' Power:
+Add validations to the `HeroPower` model:
 
-description must be present and at least 20 characters long API Routes The API provides the following routes:
+- `strength` must be one of the following values: 'Strong', 'Weak', 'Average'
 
-GET /heroes: Get a list of heroes in JSON format. GET /heroes/🆔 Get details of a hero by ID in JSON format. GET /powers: Get a list of powers in JSON format. GET /powers/🆔 Get details of a power by ID in JSON format. PATCH /powers/🆔 Update the description of a power by ID. POST /hero_powers: Create a new relationship between a hero and a power. Please refer to the code challenge description for more details on the expected JSON responses for each route.
+Add validations to the `Power` model:
 
-## Contact Information
-For any questions, suggestions, or contributions, you can contact:
+- `description` must be present and at least 20 characters long
 
-Name: Collins Kipkorir Email: kipkorirc583@gmail.com
+## Routes
 
-## License
-Copyright (c) 2023 Collins Kipkorir.
+Set up the following routes. Make sure to return JSON data in the format
+specified along with the appropriate HTTP verb.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files , to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.# superherochallenge
+### GET /heroes
+
+Return JSON data in the format below:
+
+```json
+[
+  { "id": 1, "name": "Kamala Khan", "super_name": "Ms. Marvel" },
+  { "id": 2, "name": "Doreen Green", "super_name": "Squirrel Girl" },
+  { "id": 3, "name": "Gwen Stacy", "super_name": "Spider-Gwen" }
+]
+```
+
+### GET /heroes/:id
+
+If the `Hero` exists, return JSON data in the format below:
+
+```json
+{
+  "id": 1,
+  "name": "Kamala Khan",
+  "super_name": "Ms. Marvel",
+  "powers": [
+    {
+      "id": 1,
+      "name": "super strength",
+      "description": "gives the wielder super-human strengths"
+    },
+    {
+      "id": 2,
+      "name": "flight",
+      "description": "gives the wielder the ability to fly through the skies at supersonic speed"
+    }
+  ]
+}
+```
+
+If the `Hero` does not exist, return the following JSON data, along with
+the appropriate HTTP status code:
+
+```json
+{
+  "error": "Hero not found"
+}
+```
+
+### GET /powers
+
+Return JSON data in the format below:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "super strength",
+    "description": "gives the wielder super-human strengths"
+  },
+  {
+    "id": 1,
+    "name": "flight",
+    "description": "gives the wielder the ability to fly through the skies at supersonic speed"
+  }
+]
+```
+
+### GET /powers/:id
+
+If the `Power` exists, return JSON data in the format below:
+
+```json
+{
+  "id": 1,
+  "name": "super strength",
+  "description": "gives the wielder super-human strengths"
+}
+```
+
+If the `Power` does not exist, return the following JSON data, along with
+the appropriate HTTP status code:
+
+```json
+{
+  "error": "Power not found"
+}
+```
+
+### PATCH /powers/:id
+
+This route should update an existing `Power`. It should accept an object with
+the following properties in the body of the request:
+
+```json
+{
+  "description": "Updated description"
+}
+```
+
+If the `Power` exists and is updated successfully (passes validations), update
+its description and return JSON data in the format below:
+
+```json
+{
+  "id": 1,
+  "name": "super strength",
+  "description": "Updated description"
+}
+```
+
+If the `Power` does not exist, return the following JSON data, along with
+the appropriate HTTP status code:
+
+```json
+{
+  "error": "Power not found"
+}
+```
+
+If the `Power` is **not** updated successfully (does not pass validations),
+return the following JSON data, along with the appropriate HTTP status code:
+
+```json
+{
+  "errors": ["validation errors"]
+}
+```
+
+### POST /hero_powers
+
+This route should create a new `HeroPower` that is associated with an
+existing `Power` and `Hero`. It should accept an object with the following
+properties in the body of the request:
+
+```json
+{
+  "strength": "Average",
+  "power_id": 1,
+  "hero_id": 3
+}
+```
+
+If the `HeroPower` is created successfully, send back a response with the data
+related to the `Hero`:
+
+```json
+{
+  "id": 1,
+  "name": "Kamala Khan",
+  "super_name": "Ms. Marvel",
+  "powers": [
+    {
+      "id": 1,
+      "name": "super strength",
+      "description": "gives the wielder super-human strengths"
+    },
+    {
+      "id": 2,
+      "name": "flight",
+      "description": "gives the wielder the ability to fly through the skies at supersonic speed"
+    }
+  ]
+}
+```
+
+If the `HeroPower` is **not** created successfully, return the following
+JSON data, along with the appropriate HTTP status code:
+
+```json
+{
+  "errors": ["validation errors"]
+}
+```
