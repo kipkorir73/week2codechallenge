@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from models import db, Hero, Power, HeroPower
 
@@ -17,13 +18,26 @@ def homepage():
 @app.route('/heroes', methods=['GET'])
 def get_heroes():
     heroes = Hero.query.all()
-    return jsonify([hero.serialize() for hero in heroes])
+    hero_list = []
+    for hero in heroes:
+        hero_data = {
+            "id": hero.id,
+            "name": hero.name,
+            "super_name": hero.super_name
+        }
+        hero_list.append(hero_data)
+    return jsonify(hero_list)
 
 @app.route('/heroes/<int:id>', methods=['GET'])
 def get_hero(id):
     hero = Hero.query.get(id)
     if hero:
-        return jsonify(hero.serialize())
+        hero_data = {
+            "id": hero.id,
+            "name": hero.name,
+            "super_name": hero.super_name
+        }
+        return jsonify(hero_data)
     return jsonify({"message": "Hero not found"}), 404
 
 @app.route('/powers', methods=['GET'])
